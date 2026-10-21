@@ -47,7 +47,7 @@ class StationarityAnalyzer:
     def correlation_analysis(self, tickers: list) -> pd.DataFrame:
         """Analyzes correlation between ticker closing prices and daily returns."""
         df = self.load_data()
-        
+
         close_cols = [f"Close_{t}" for t in tickers]
         corr_close = df[close_cols].corr()
 
