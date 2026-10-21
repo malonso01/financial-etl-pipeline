@@ -1,20 +1,26 @@
 import sqlite3
 import pandas as pd
 
-def load(df: pd.DataFrame, db_path: str = "financial_data.db") -> None:
-    """Saves the transformed data to a SQLite database."""
 
-    conn = sqlite3.connect(db_path)
-    df.to_sql("stock_prices", conn, if_exists="replace", index=False)
-    conn.close()
+class Loader:
+    """Handles data loading into SQLite database."""
 
-    print(f"✅ Loaded {len(df)} records into '{db_path}'")
+    def __init__(self, db_path: str = "financial_data.db"):
+        self.db_path = db_path
+
+    def load(self, df: pd.DataFrame) -> None:
+        """Saves the transformed data to a SQLite database."""
+        conn = sqlite3.connect(self.db_path)
+        df.to_sql("stock_prices", conn, if_exists="replace", index=False)
+        conn.close()
+        print(f"✅ Loaded {len(df)} records into '{self.db_path}'")
 
 
 if __name__ == "__main__":
-    from extract import extract
-    from transform import transform
+    from extract import Extractor
+    from transform import Transformer
 
-    raw = extract(["AAPL", "MSFT", "GOOGL"])
-    clean = transform(raw)
-    load(clean)
+    tickers = ["AAPL", "MSFT", "GOOGL"]
+    raw = Extractor(tickers).extract()
+    clean = Transformer(tickers).transform(raw)
+    Loader().load(clean)
