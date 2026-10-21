@@ -39,16 +39,40 @@ class StationarityAnalyzer:
         print("=" * 50)
 
         for ticker in tickers:
-            # Test closing prices (expected: non-stationary)
             results.append(self.run_adf_test(df[f"Close_{ticker}"], f"Close_{ticker}"))
-            # Test daily % change (expected: stationary)
             results.append(self.run_adf_test(df[f"pct_change_{ticker}"], f"pct_change_{ticker}"))
 
         return pd.DataFrame(results)
 
+    def correlation_analysis(self, tickers: list) -> pd.DataFrame:
+        """Analyzes correlation between ticker closing prices and daily returns."""
+        df = self.load_data()
+        
+        close_cols = [f"Close_{t}" for t in tickers]
+        corr_close = df[close_cols].corr()
+
+        pct_cols = [f"pct_change_{t}" for t in tickers]
+        corr_pct = df[pct_cols].corr()
+
+        print("\n" + "=" * 50)
+        print("CORRELATION ANALYSIS — Closing Prices")
+        print("=" * 50)
+        print(corr_close.to_string())
+
+        print("\n" + "=" * 50)
+        print("CORRELATION ANALYSIS — Daily % Change")
+        print("=" * 50)
+        print(corr_pct.to_string())
+
+        return corr_pct
+
 
 if __name__ == "__main__":
+    tickers = ["AAPL", "MSFT", "GOOGL"]
     analyzer = StationarityAnalyzer()
-    results = analyzer.analyze(["AAPL", "MSFT", "GOOGL"])
+
+    results = analyzer.analyze(tickers)
     print("\n📋 Summary:")
     print(results[["series", "p_value", "stationary"]].to_string(index=False))
+
+    analyzer.correlation_analysis(tickers)
